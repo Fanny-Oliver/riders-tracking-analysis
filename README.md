@@ -8,7 +8,8 @@ Additional analysis to determine the time used by each rider. This was done to m
 
 Next, I installed and loaded the packages needed to conduct my analysis.
 
-`#install packages
+```
+#install packages
 install.packages("tidyverse")    #to load the data
 install.packages("ggplot2")      #to plot charts
 install.packages("geosphere")    #to calculate the longitude and latitude
@@ -70,7 +71,8 @@ library(zoo)          # to interpolate data
 library(showtext)     # to add fonts
 library(spData)
 library(spDataLarge)
-library(grid)`
+library(grid)
+```
 
 Next, I put the data in rstudio(attached, you will see the path where the file is saved on my device). I have the software downloaded on my computer, but if you are using cloud version of Rstudio, you can just upload it there. I'll attach a sample csv of the data here 
 
