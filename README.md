@@ -76,13 +76,15 @@ library(grid)
 
 Next, I put the data in rstudio(attached, you will see the path where the file is saved on my device). I have the software downloaded on my computer, but if you are using cloud version of Rstudio, you can just upload it there. I'll attach a sample csv of the data here 
 
-`#to load and read the data
+```
+#to load and read the data
 tracking_df <- read.csv("~/Desktop/Trackers.csv") #this is the file path
 str(tracking_df)
 colnames(tracking_df)
 head(tracking_df)
 tail(tracking_df)
-summary(tracking_df)`
+summary(tracking_df)
+```
 
 The sample dataset is in this repo. Saved as "sample_data.csv".
 
@@ -96,30 +98,39 @@ Things to note:
 
 Next, I ensured that the data was clean and in the right formats. Then I checked for the number of distinct riders:
 
-`#check for distinct rider id
-n_distinct(tracking_df$userId)`
+```
+#check for distinct rider id
+n_distinct(tracking_df$userId)
+```
 
 Then, I changed the time from milliseconds to date and time format and date format as well.
 
-`#first convert time to date time format 
+```
+#first convert time to date time format 
 tracking_df$Date_and_time <- as_datetime(tracking_df$time/1000)
-tracking_df$date <- as_date(tracking_df$Date_and_time)`
+tracking_df$date <- as_date(tracking_df$Date_and_time)
+```
 
 Next, I noticed the csv file became unsorted so I had to sort it out but if it is already sorted out when you open the csv file, you can just go ahead and calculate the distance,
 
-`#I will also be arranging the file according to user id, then by date and time
-tracking_df <- tracking_df[order(tracking_df$userId, tracking_df$Date_and_time),]`
+```
+#I will also be arranging the file according to user id, then by date and time
+tracking_df <- tracking_df[order(tracking_df$userId, tracking_df$Date_and_time),]
+```
 
 This could be one of the first things you do. I ran this code to endure that whatever output i get doesn't turn up scientific, and the second is to make sure the decimal points have just 2 digits.
 
-`#to emsure the number format is not scientific
+```
+#to emsure the number format is not scientific
 options(scipen=999)
 getOption("digits")
-options(digits = 2)`
+options(digits = 2)
+```
 
 Next, i created a boundary box by using the cordinares for the whole country to make sure that any cordinate outside of the country should be removed since we operate only within the country.
 
-`#create a boundary box(border) for the whole of ghana
+```
+#create a boundary box(border) for the whole of ghana
 long <- c(-2.7685546874999996, -2.9443359375, -2.57080078125, -3.27392578125, -2.7685546874999996,  
           -2.0654296875, 1.142578125, 0.5712890625, 0.41748046875, 0.3515625, -0.06591796875, -2.7685546874999996)
 lat <- c(11.005904459659451, 10.660607953624776, 8.189742344383703, 6.5118147063479, 5.00339434502215,
@@ -127,19 +138,23 @@ lat <- c(11.005904459659451, 10.660607953624776, 8.189742344383703, 6.5118147063
 ghana <- data.frame(long, lat)
 
 #to ensure the cordinates fall within the borders of Ghana
-tracking_df$existing <- point.in.polygon(tracking_df$longitude, tracking_df$latitude, ghana$long, ghana$lat)`
+tracking_df$existing <- point.in.polygon(tracking_df$longitude, tracking_df$latitude, ghana$long, ghana$lat)
+```
 
 Then, I created a dataframe to show pnly the data that is within the boundary of the country. i created another dataframe because i still wanted to preserve the original df.
 
-`#create a new data frame of the cordinates that are indeed in Ghana
+```
+#create a new data frame of the cordinates that are indeed in Ghana
 tracks <- tracking_df %>% 
-  filter(existing == 1)`
+  filter(existing == 1)
+```
   
 Then, I created a loop to calculate the long and lat of the data and the one before it. I had to keep in mind to make sure that when the loop sees a new date and a new id, it must start from 0.
 
 I calculated it in meters and then converted it to kilometers so I can answer the question.
 
-`#calculating the distance between the second point and the point before it
+```
+#calculating the distance between the second point and the point before it
 latitude <- tracks$latitude
 longitude <- tracks$longitude
 user_id <- tracks$userId
@@ -167,11 +182,13 @@ tracks$distance_in_meters <- sapply(1:nrow(dist), distance_meters)
 
 
 #to convert the distance from meters to kilometers
-tracks$distance_in_km <- tracks$distance_in_meters/1000`
+tracks$distance_in_km <- tracks$distance_in_meters/1000
+```
 
 I did the same analysis for the time as well. Mind you, the data had 1.4 million rows, so it took a good 7-10 minutes for the code to run. I calculated the time in seconds and still converted it to minutes afterwards. But you can convert it to minutes or hours directly by using ("units = 'secs', 'mins', 'hours'")
 
-`#to calculate time difference of the time below and the one before it
+```
+#to calculate time difference of the time below and the one before it
 time_chec <- tracks$Date_and_time
 userId <- tracks$userId
 date <- tracks$date
@@ -198,14 +215,17 @@ time_diff <- function(x) {
 tracks$time_diff_seconds <- sapply(1:nrow(ti_di), time_diff)
 
 #to convert the time difference to munites
-tracks$minutes <- tracks$time_diff_seconds/60`
+tracks$minutes <- tracks$time_diff_seconds/60
+```
 
 Then I checked the sum of kilometers each rider has tavelled as well as the time used to travel.
 
-`#to calculate the km each rider has riden
+```
+#to calculate the km each rider has riden
 xaxis <- aggregate(tracks$distance_in_km ~ tracks$userId, FUN = sum)
 yaxis <- aggregate(tracks$minutes ~ tracks$userId, FUN = sum)
-axeses <- data.frame(yaxis, xaxis)`
+axeses <- data.frame(yaxis, xaxis)
+```
 
 ### The tracking data in the different parts of the country
 
@@ -213,7 +233,8 @@ I wanted to show what parts of Ghana the riders were delivering to and fro in Gh
 
 Below, we can see the tracks of all the riders all over Ghana:
 
-`new_df <- tracks %>% 
+```
+new_df <- tracks %>% 
   filter(distance_in_km>0)
 #the route
 first <- new_df$longitude
@@ -223,6 +244,7 @@ datee <- new_df$date
 froutes <- data.frame(first, second, idee, datee)
 #plot the location
 sp::plot(ne_states(country = "ghana"))
-points(x=froutes$first, y = froutes$second, col = "red", cex = 2, pch = 20)`
+points(x=froutes$first, y = froutes$second, col = "red", cex = 2, pch = 20)
+```
 
 With the chart, we can see if the tracking data is really accurate and it was as all the riders were travelling to places the company operates in.
