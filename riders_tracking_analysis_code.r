@@ -63,7 +63,7 @@ library(spDataLarge)
 library(grid)
 
 #to load and read the data
-tracking_df <- read.csv("~/Desktop/Swoove_work/Tracking_data/Trackers.csv") #this is the file path
+tracking_df <- read.csv("~/Desktop/Trackers.csv") #this is the file path
 str(tracking_df)
 colnames(tracking_df)
 head(tracking_df)
