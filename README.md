@@ -90,9 +90,9 @@ The sample dataset is in this repo. Saved as "sample_data.csv".
 
 Things to note: 
 
-- to find the distance, the enry below must subtrack the one above;
-- the time is in milliseconds and must be converted to date and time;
-- the distinct d is the user_id not the x-id.
+- to find the distance, the distance below must subtract the one above(i.e, y = x-1);
+- the time is in milliseconds and must be converted to date and time, so you can cross-check and see if the time calculation is correct and logical;
+- the distinct id(the riders id) is the user_id not the x-id.
 
 ### Cleaning the data
 
@@ -118,7 +118,7 @@ Next, I noticed the csv file became unsorted so I had to sort it out but if it i
 tracking_df <- tracking_df[order(tracking_df$userId, tracking_df$Date_and_time),]
 ```
 
-This could be one of the first things you do. I ran this code to endure that whatever output i get doesn't turn up scientific, and the second is to make sure the decimal points have just 2 digits.
+This could be one of the first things you do. I ran this code to ensure that whatever output i get doesn't turn up scientific, and the second is to make sure the decimal points have just 2 digits.
 
 ```
 #to emsure the number format is not scientific
@@ -127,7 +127,7 @@ getOption("digits")
 options(digits = 2)
 ```
 
-Next, i created a boundary box by using the cordinares for the whole country to make sure that any cordinate outside of the country should be removed since we operate only within the country.
+Next, i created a boundary box by using the coordinates for the whole country to make sure that any cordinate outside of the country should be removed since the business operates only within the country.
 
 ```
 #create a boundary box(border) for the whole of ghana
@@ -141,7 +141,7 @@ ghana <- data.frame(long, lat)
 tracking_df$existing <- point.in.polygon(tracking_df$longitude, tracking_df$latitude, ghana$long, ghana$lat)
 ```
 
-Then, I created a dataframe to show pnly the data that is within the boundary of the country. i created another dataframe because i still wanted to preserve the original df.
+Then, I created a dataframe to show only the data that is within the boundary of the country. i created another dataframe because i still wanted to preserve the original df.
 
 ```
 #create a new data frame of the cordinates that are indeed in Ghana
@@ -149,7 +149,7 @@ tracks <- tracking_df %>%
   filter(existing == 1)
 ```
   
-Then, I created a loop to calculate the long and lat of the data and the one before it. I had to keep in mind to make sure that when the loop sees a new date and a new id, it must start from 0.
+Then, I created a loop to calculate the long and lat of the coordinate and the one before it. I had to keep in mind to make sure that when the loop sees a new date and a new id, it must start from 0.
 
 I calculated it in meters and then converted it to kilometers so I can answer the question.
 
@@ -218,7 +218,7 @@ tracks$time_diff_seconds <- sapply(1:nrow(ti_di), time_diff)
 tracks$minutes <- tracks$time_diff_seconds/60
 ```
 
-Then I checked the sum of kilometers each rider has tavelled as well as the time used to travel.
+Then I checked the sum of kilometers each rider has tavelled as well as the time used to travel.And created a dataframe with the total.
 
 ```
 #to calculate the km each rider has riden
@@ -247,4 +247,4 @@ sp::plot(ne_states(country = "ghana"))
 points(x=froutes$first, y = froutes$second, col = "red", cex = 2, pch = 20)
 ```
 
-With the chart, we can see if the tracking data is really accurate and it was as all the riders were travelling to places the company operates in.
+With the chart, we can see if the tracking data is really accurate and it was, as all the riders were travelling to places or regions that the company operates in.
